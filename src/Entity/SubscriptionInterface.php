@@ -52,7 +52,7 @@ interface SubscriptionInterface extends DeveloperAcceptedRatePlanInterface {
    *   An array of subscription entities for a given developer (identified by
    *   email).
    */
-  public static function loadRatePlansByDeveloperEmail(string $developer_email): array;
+  public static function loadByDeveloperId(string $developer_email): array;
 
   /**
    * Getter for the `isSubscriptionActive` call.
