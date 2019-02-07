@@ -48,8 +48,8 @@ class BillingDetailsTest extends MonetizationFunctionalTestBase {
   public function setUp() {
     parent::setUp();
 
-    // If the user doesn't have the "view any monetization billing details" permission, they should
-    // get access denied.
+    // If the user doesn't have the "view any monetization billing details"
+    // permission, they should get access denied.
     $this->developer = $this->createAccount([]);
 
     $this->drupalLogin($this->developer);
@@ -75,16 +75,11 @@ class BillingDetailsTest extends MonetizationFunctionalTestBase {
     $user_roles = $this->developer->getRoles();
     $this->grantPermissions(Role::load(reset($user_roles)), ['view any monetization billing details']);
 
+    $dev = $this->convertUserToEdgeDeveloper($this->developer, ['MINT_DEVELOPER_LEGAL_NAME' => $this->developer->getEmail()]);
+    \Drupal::cache('apigee_edge_entity')->delete("values:developer:{$dev->id()}");
     $this->queueOrg();
     $this->stack->queueMockResponse([
-      'developer' => [
-        'mail'  => ['value' => $this->developer->getEmail()],
-        'uuid' => ['value' => '123123123'],
-        'first_name' => ['value' => 'First Name'],
-        'last_name' => ['value' => 'Last Name'],
-        'name' => ['value' => $this->developer->getEmail()],
-        'org_name' => 'Test Org',
-      ]
+      'developer' => ['developer' => $dev],
     ]);
 
     $this->drupalGet(Url::fromRoute('apigee_monetization.profile', [
