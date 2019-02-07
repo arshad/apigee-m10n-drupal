@@ -81,7 +81,6 @@ class TestFrameworkKernelTest extends MonetizationKernelTestBase {
     self::assertEquals('{"status": "success", "catalog_version": "1.0"}', (string) $response->getBody());
   }
 
-
   /**
    * Tests the Apigee Edge developer response.
    *
