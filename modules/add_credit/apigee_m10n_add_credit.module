@@ -18,7 +18,6 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-use Drupal\commerce_product\Entity\ProductVariationInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -28,13 +27,6 @@ use Drupal\Core\Form\FormStateInterface;
  */
 function apigee_m10n_add_credit_mail($key, &$message, $params) {
   apigee_m10n_add_credit_service()->mail($key, $message, $params);
-}
-
-/**
- * Implements hook_ENTITY_TYPE_create().
- */
-function apigee_m10n_add_credit_commerce_order_item_create(EntityInterface $entity) {
-  apigee_m10n_add_credit_service()->commerceOrderItemCreate($entity);
 }
 
 /**

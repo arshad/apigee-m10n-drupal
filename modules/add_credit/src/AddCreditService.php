@@ -91,24 +91,6 @@ class AddCreditService implements AddCreditServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function commerceOrderItemCreate(EntityInterface $entity) {
-    /** @var \Drupal\commerce_order\Entity\OrderItemInterface $entity */
-    /** @var \Drupal\commerce_product\Entity\ProductVariationInterface $variant */
-    // Check to see if an "Add credit" product is what's being added.
-    if ($entity instanceof OrderItemInterface
-      && ($variant = $entity->getPurchasedEntity())
-      && ($product = $variant->getProduct())
-      && !empty($product->apigee_add_credit_enabled->value)
-    ) {
-      // Save the current user as the top up recipient. We might need to change
-      // how this works when topping up a company or a non-current user.
-      $entity->setData('add_credit_account', $this->current_user->getEmail());
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function entityBaseFieldInfo(EntityTypeInterface $entity_type) {
     $fields = [];
 

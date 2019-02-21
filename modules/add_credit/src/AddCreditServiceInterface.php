@@ -42,20 +42,6 @@ interface AddCreditServiceInterface {
   public function mail($key, &$message, $params);
 
   /**
-   * Implementation for `apigee_m10n_add_credit_commerce_order_item_create()`.
-   *
-   * When an order item is created, we need to check to see if the product is an
-   * add credit item. If it is, we should store a reference to the developer
-   * that we are topping up so it can be used to credit the appropriate account.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The commerce order item.
-   *
-   * @todo: Add support for team context.
-   */
-  public function commerceOrderItemCreate(EntityInterface $entity);
-
-  /**
    * Implementation for `apigee_m10n_add_credit_entity_base_field_info()`.
    *
    * This will add the `apigee_add_credit_enabled` base field to all
