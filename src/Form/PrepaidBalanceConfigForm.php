@@ -91,8 +91,7 @@ class PrepaidBalanceConfigForm extends ConfigFormBase {
 
     $form['cache'] = [
       '#title' => $this->t('Caching'),
-      '#type' => 'details',
-      '#open' => TRUE,
+      '#type' => 'fieldset',
     ];
 
     $form['cache']['max_age'] = [
