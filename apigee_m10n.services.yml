@@ -20,6 +20,10 @@ services:
   apigee_m10n.sdk_controller_proxy.subscription:
     class: Drupal\apigee_m10n\Entity\Storage\DeveloperAcceptedRatePlanSdkControllerProxy
 
+  apigee_m10n.sdk_controller_proxy.developer_prepaid_balance:
+    class: Drupal\apigee_m10n\Entity\Storage\Controller\DeveloperPrepaidBalanceSdkControllerProxy
+    arguments: ['@apigee_m10n.sdk_controller_factory']
+
   apigee_m10n.validate_monetization_enabled:
     class: Drupal\apigee_m10n\EventSubscriber\ValidateMonetizationEnabledSubscriber
     arguments: ['@apigee_m10n.monetization', '@messenger']

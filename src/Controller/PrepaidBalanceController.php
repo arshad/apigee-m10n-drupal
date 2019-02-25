@@ -19,7 +19,8 @@
 
 namespace Drupal\apigee_m10n\Controller;
 
-use Drupal\apigee_edge\SDKConnectorInterface;
+use Drupal\apigee_m10n\Entity\ListBuilder\PrepaidBalanceListBuilderInterface;
+use Drupal\apigee_m10n\Entity\Storage\DeveloperPrepaidBalanceStorageInterface;
 use Drupal\apigee_m10n\Form\PrepaidBalanceConfigForm;
 use Drupal\apigee_m10n\Form\PrepaidBalanceRefreshForm;
 use Drupal\apigee_m10n\Form\PrepaidBalanceReportsDownloadForm;
@@ -65,29 +66,39 @@ class PrepaidBalanceController extends ControllerBase implements ContainerInject
   protected $monetization;
 
   /**
-   * The Apigee SDK connector.
+   * The developer prepaid balance storage.
    *
-   * @var \Drupal\apigee_edge\SDKConnectorInterface
+   * @var \Drupal\apigee_m10n\Entity\Storage\DeveloperPrepaidBalanceStorageInterface
    */
-  protected $sdk_connector;
+  protected $prepaidBalanceStorage;
+
+  /**
+   * The prepaid balance list builder.
+   *
+   * @var \Drupal\apigee_m10n\Entity\ListBuilder\PrepaidBalanceListBuilderInterface
+   */
+  protected $listBuilder;
 
   /**
    * BillingController constructor.
    *
-   * @param \Drupal\apigee_edge\SDKConnectorInterface $sdk_connector
-   *   The `apigee_edge.sdk_connector` service.
    * @param \Drupal\apigee_m10n\MonetizationInterface $monetization
    *   The `apigee_m10n.monetization` service.
    * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
    *   The form builder.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
+   * @param \Drupal\apigee_m10n\Entity\Storage\DeveloperPrepaidBalanceStorageInterface $prepaid_balance_storage
+   *   The developer prepaid balance storage.
+   * @param \Drupal\apigee_m10n\Entity\ListBuilder\PrepaidBalanceListBuilderInterface $list_builder
+   *   The prepaid balance list builder.
    */
-  public function __construct(SDKConnectorInterface $sdk_connector, MonetizationInterface $monetization, FormBuilderInterface $form_builder, AccountInterface $current_user) {
-    $this->sdk_connector = $sdk_connector;
+  public function __construct(MonetizationInterface $monetization, FormBuilderInterface $form_builder, AccountInterface $current_user, DeveloperPrepaidBalanceStorageInterface $prepaid_balance_storage, PrepaidBalanceListBuilderInterface $list_builder) {
     $this->monetization = $monetization;
     $this->currentUser = $current_user;
     $this->formBuilder = $form_builder;
+    $this->prepaidBalanceStorage = $prepaid_balance_storage;
+    $this->listBuilder = $list_builder;
   }
 
   /**
@@ -95,10 +106,13 @@ class PrepaidBalanceController extends ControllerBase implements ContainerInject
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('apigee_edge.sdk_connector'),
       $container->get('apigee_m10n.monetization'),
       $container->get('form_builder'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('entity_type.manager')
+        ->getStorage('developer_prepaid_balance'),
+      $container->get('entity_type.manager')
+        ->getListBuilder('developer_prepaid_balance')
     );
   }
 
@@ -140,15 +154,10 @@ class PrepaidBalanceController extends ControllerBase implements ContainerInject
       ],
     ];
 
-    // Retrieve prepaid balances for this user for the current month and year.
-    $build['prepaid_balances'] = [
-      'balances' => [
-        '#theme' => 'prepaid_balances',
-        '#balances' => $this->getDataFromCache($user, 'prepaid_balances', function () use ($user) {
-          return $this->monetization->getDeveloperPrepaidBalances($user, new \DateTimeImmutable('now'));
-        }),
-      ],
-    ];
+    if ($prepaid_balances = $this->prepaidBalanceStorage->loadByDeveloperId($user->getEmail())) {
+      $build['prepaid_balances'] = $this->listBuilder->withEntities($prepaid_balances)
+        ->render();
+    }
 
     // Cache the render array if enabled.
     if ($max_age = $this->getCacheMaxAge()) {
@@ -162,7 +171,8 @@ class PrepaidBalanceController extends ControllerBase implements ContainerInject
 
     // Add a refresh cache form.
     if ($this->canRefreshBalance($user)) {
-      $build['refresh_form'] = $this->formBuilder()->getForm(PrepaidBalanceRefreshForm::class, $this->getCacheTags($user));
+      $build['refresh_form'] = $this->formBuilder()
+        ->getForm(PrepaidBalanceRefreshForm::class, $this->getCacheTags($user));
     }
 
     // Show the prepaid balance reports download form.

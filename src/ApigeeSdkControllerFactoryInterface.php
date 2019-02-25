@@ -72,13 +72,13 @@ interface ApigeeSdkControllerFactoryInterface {
   /**
    * Creates a developer prepaid balance controller.
    *
-   * @param \Drupal\user\UserInterface $developer
-   *   The developer drupal user.
+   * @param string $developer_id
+   *   The developer id.
    *
    * @return \Apigee\Edge\Api\Monetization\Controller\DeveloperPrepaidBalanceControllerInterface
    *   The controller.
    */
-  public function developerBalanceController(UserInterface $developer): DeveloperPrepaidBalanceControllerInterface;
+  public function developerBalanceController(string $developer_id): DeveloperPrepaidBalanceControllerInterface;
 
   /**
    * Creates a company prepaid balance controller.

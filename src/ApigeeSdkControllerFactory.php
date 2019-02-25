@@ -127,19 +127,18 @@ class ApigeeSdkControllerFactory implements ApigeeSdkControllerFactoryInterface 
   /**
    * {@inheritdoc}
    */
-  public function developerBalanceController(UserInterface $developer): DeveloperPrepaidBalanceControllerInterface {
-    $developer_email = $developer->getEmail();
-    if (empty($this->controllers[__FUNCTION__][$developer_email])) {
+  public function developerBalanceController(string $developer_id): DeveloperPrepaidBalanceControllerInterface {
+    if (empty($this->controllers[__FUNCTION__][$developer_id])) {
       // Don't assume the bucket has been initialized.
       $this->controllers[__FUNCTION__] = $this->controllers[__FUNCTION__] ?? [];
       // Create a new balance controller.
-      $this->controllers[__FUNCTION__][$developer_email] = new DeveloperPrepaidBalanceController(
-        $developer_email,
+      $this->controllers[__FUNCTION__][$developer_id] = new DeveloperPrepaidBalanceController(
+        $developer_id,
         $this->getOrganization(),
         $this->getClient()
       );
     }
-    return $this->controllers[__FUNCTION__][$developer_email];
+    return $this->controllers[__FUNCTION__][$developer_id];
   }
 
   /**
