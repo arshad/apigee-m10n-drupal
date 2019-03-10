@@ -136,8 +136,10 @@ class AddCreditAddToCartForm extends AddToCartForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $request = $this->request->getCurrentRequest();
+
     // Get the default value from query otherwise use the current user.
-    $default_value = $this->request->getCurrentRequest()->get(AddCreditConfig::TARGET_FIELD_NAME) ?? [
+    $default_value = $request->get(AddCreditConfig::TARGET_FIELD_NAME) ?? [
       'target_type' => 'developer',
       'target_id' => $this->currentUser->getEmail(),
     ];
@@ -157,7 +159,22 @@ class AddCreditAddToCartForm extends AddToCartForm {
       ];
     }
 
+    // Add a custom after build callback.
+    $form['#after_build'][] = '::afterBuild';
+
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function afterBuild(array $element, FormStateInterface $form_state) {
+    $element = parent::afterBuild($element, $form_state);
+
+    // Set the default currency.
+    if (($currency_code = $this->request->getCurrentRequest()->get('currency_code')) && isset($element['unit_price'])) {
+      $element["unit_price"]["widget"][0]["amount"]["currency_code"]["#default_value"] = $currency_code;
+    }
   }
 
   /**

@@ -335,6 +335,7 @@ class AddCreditService implements AddCreditServiceInterface {
                         'target_type' => $plugin_id,
                         'target_id' => $plugin->getEntityId($entity),
                       ],
+                      'currency_code' => $currency_id,
                     ],
                   ]),
                   'attributes' => $attributes,
